@@ -699,6 +699,22 @@
         "slug": "copa-airlines"
     },
     {
+        "name": "EasyJet",
+        "iata": "U2",
+        "icao": "EZY",
+        "country": "GB",
+        "website": "https://www.easyjet.com",
+        "branding": {
+            "primary_color": "#ff6600",
+            "colors": {
+                "logo": [
+                    "#ff6600"
+                ]
+            }
+        },
+        "slug": "easyjet"
+    },
+    {
         "name": "Emirates",
         "iata": "EK",
         "icao": "UAE",
