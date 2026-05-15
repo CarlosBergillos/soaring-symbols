@@ -1073,6 +1073,14 @@
                 ]
             }
         },
+        "subsidiaries": [
+            {
+                "name": "KLM Cityhopper",
+                "iata": "WA",
+                "icao": "KLC",
+                "country": "NL"
+            }
+        ],
         "slug": "klm"
     },
     {
@@ -1208,6 +1216,14 @@
                 ]
             }
         },
+        "subsidiaries": [
+            {
+                "name": "Lufthansa City Airlines",
+                "iata": "VL",
+                "icao": "LHX",
+                "country": "DE"
+            }
+        ],
         "slug": "lufthansa"
     },
     {
