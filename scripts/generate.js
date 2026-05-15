@@ -88,10 +88,7 @@ sorted.forEach((airline) => {
     })
 
     const colorSquare = primary_color
-        ? `![${primary_color}](https://place-hold.it/10x10/${primary_color.replace(
-              '#',
-              '',
-          )}/${primary_color.replace('#', '')}.png)`
+        ? `<div style="width: 10px; height: 10px; background-color: ${primary_color};"></div>`
         : ''
 
     md += `| ${airlineName} | ${country || ''} | ${iata || ''} | ${
