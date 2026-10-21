@@ -70,7 +70,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{js,ts}\"",
-    "release": "node scripts/release.js"
+    "release": "node scripts/release.js",
+    "optimize": "svgo --config svgo.config.mjs"
   },
   "lint-staged": {
     "*.js": [
@@ -93,6 +94,7 @@
     "jsdom": "^27.0.1",
     "lint-staged": "^17.0.4",
     "lodash.sortby": "^4.7.0",
-    "prettier": "^3.8.3"
+    "prettier": "^3.8.3",
+    "svgo": "4.0.0"
   }
 }

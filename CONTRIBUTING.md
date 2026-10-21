@@ -32,7 +32,13 @@ assets/
 
 ### 2. SVG Specifications
 
-- **SVG Optimization**: All submitted SVGs must be optimized using [SVGO](https://github.com/svg/svgo) (or the online tool [SVGOMG](https://svgomg.net)) to ensure minimal file size and optimal performance.
+- **SVG Optimization**: All submitted SVGs must be optimized with [SVGO](https://github.com/svg/svgo) using the project's config, which keeps `role="img"`, strips editor metadata (Inkscape, Sodipodi) and avoids path merging that can shift shapes:
+
+  ```bash
+  npm run optimize -- assets/vietnam-airways/*.svg
+  ```
+
+  Online tools such as [SVGOMG](https://svgomg.net) use SVGO's defaults, which remove `role="img"` and can leave editor metadata behind, so prefer the command above.
 
 - **ViewBox Dimensions**:
 
@@ -89,7 +95,7 @@ This behavior is detected automatically by the `generate.js` script when it insp
 
 ### 4. Pull Requests
 
-1. Prepare your SVG files according to the naming and specification guidelines.
+1. Prepare your SVG files according to the naming and specification guidelines, optimize them with `npm run optimize`, and check them with `npm run lint:svg`.
 2. Add the new airline's base information to the `airlines.json` file, ensuring the list remains sorted alphabetically.
 3. **You must run the `generate.js` script** (`npm run generate` or `node generate.js`). This script is essential as it will:
     - Analyze your new SVG files.
