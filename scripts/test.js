@@ -1,4 +1,5 @@
 import { createRequire } from 'module'
+import { tmpdir } from 'os'
 const require = createRequire(import.meta.url)
 
 // Use require for airlines.json import issues
@@ -10,11 +11,22 @@ const {
 } = require('../dist/index.cjs')
 const assert = require('assert')
 
+// Run from outside the repo, like a consumer would, so cwd-relative paths fail
+process.chdir(tmpdir())
+
 async function run() {
     // Basic sanity checks
     const airlines = listAirlines()
     assert(Array.isArray(airlines), 'listAirlines should return an array')
     assert(airlines.length > 0, 'airlines should not be empty')
+
+    // Asset paths must resolve regardless of the cwd
+    const vna = getAssets('VN')
+    assert(vna?.logo?.color, 'getAssets should find Vietnam Airlines logo')
+    assert(
+        getAssetContent('VN')?.logo?.color?.includes('<svg'),
+        'getAssetContent should read Vietnam Airlines logo',
+    )
 
     // Pick the first airline and verify lookups
     const sample = airlines[0]
