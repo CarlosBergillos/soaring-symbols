@@ -40,7 +40,7 @@ Node ≥ 20 is required (`index.js` uses JSON import attributes). Dependencies a
 
 ## Gotchas
 
-- `lint-svg.js` always exits 0, even when it finds issues — read its output instead of trusting the exit code. Files that intentionally break the rules are listed in `EXCLUDE_FILES` at the top of the script.
+- `lint-svg.js` always exits 0, even when it finds issues — read its output instead of trusting the exit code. Some rules (e.g. one `<path>` per single-color SVG) only warn and are never changed by `--fix`. Files that intentionally break the rules are listed in `EXCLUDE_FILES` at the top of the script.
 - `generate.js` rewrites `airlines.json` from scratch (4-space JSON) — run it rather than hand-editing `slug` or `branding.colors`. `npm run build` / `npm test` also run it, so a build can leave the working tree dirty.
 - The CJS build is produced by regex replacements in `scripts/build.js` (`transformToCJS`). Changing the imports or exports of `index.js` usually means updating those regexes too; check `dist/index.cjs` after building.
 - `svg-validator.js` must stay free of Node-only imports, and every helper it uses from `scripts/lint/validators.js` must be a top-level `export function` so the build can inline it.

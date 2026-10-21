@@ -40,6 +40,8 @@ assets/
 
   Online tools such as [SVGOMG](https://svgomg.net) use SVGO's defaults, which remove `role="img"` and can leave editor metadata behind, so prefer the command above.
 
+- **Single-Color Assets**: A single-color SVG (including every `-mono` file) should draw everything in one `<path>`. Combine the shapes in your editor (e.g. Inkscape's *Path → Combine*) and check that overlapping shapes don't leave holes; `npm run lint:svg` warns about single-color files with more than one shape.
+
 - **ViewBox Dimensions**:
 
   - **Logos** should use a `viewBox` of `0 0 64 64`.

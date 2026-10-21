@@ -8,6 +8,7 @@ import {
     ruleViewBox,
     ruleRequiredAttrs,
     ruleNoTransforms,
+    ruleSinglePath,
 } from './lint/rule-structure.js'
 import { ruleNoScripts } from './lint/rule-security.js'
 import {
@@ -37,6 +38,7 @@ const DOM_RULES = [
     ruleRequiredAttrs,
     ruleNoScripts,
     ruleNoTransforms,
+    ruleSinglePath,
     ruleHexColors,
     ruleFillPlacement,
 ]
@@ -90,6 +92,8 @@ const lintSvgFile = (filePath) => {
         airlineName: getAirlineName(filePath),
         isCatalogName: catalogNames.has(basename(dirname(filePath))),
         issues: [],
+        // Reported only; never trigger a rewrite in --fix mode
+        warnings: [],
     }
 
     // Phase 1: DOM rules
@@ -111,7 +115,7 @@ const lintSvgFile = (filePath) => {
     }
 
     return {
-        issues: ctx.issues,
+        issues: [...ctx.issues, ...ctx.warnings],
         fixedContent: hasStructuralFixes ? fixedContent : null,
     }
 }
