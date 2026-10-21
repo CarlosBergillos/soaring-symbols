@@ -1,4 +1,5 @@
 import { createRequire } from 'module'
+import { readFileSync } from 'fs'
 import { tmpdir } from 'os'
 const require = createRequire(import.meta.url)
 
@@ -10,6 +11,7 @@ const {
     getAssetContent,
 } = require('../dist/index.cjs')
 const assert = require('assert')
+const { JSDOM } = require('jsdom')
 
 // Run from outside the repo, like a consumer would, so cwd-relative paths fail
 process.chdir(tmpdir())
@@ -69,6 +71,25 @@ async function run() {
                 variant.monochrome?.includes('<svg'),
         )
         assert(hasContent, 'at least one variant should have SVG content')
+    }
+
+    // The bundled validator must be self-contained in both module formats
+    const {
+        runSvgValidations: validateCJS,
+    } = require('../dist/svg-validator.cjs')
+    const { runSvgValidations: validateESM } =
+        await import('../dist/svg-validator.js')
+    const svg = new JSDOM(
+        readFileSync(
+            require.resolve('../dist/assets/vietnam-airlines/logo.svg'),
+        ),
+        { contentType: 'image/svg+xml' },
+    ).window.document.querySelector('svg')
+    for (const validate of [validateCJS, validateESM]) {
+        assert(
+            validate(svg, 'logo').some((check) => check.pass),
+            'runSvgValidations should validate a logo',
+        )
     }
 
     console.log('All tests passed')
