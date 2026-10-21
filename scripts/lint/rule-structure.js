@@ -1,7 +1,13 @@
 import { validateViewBox, validateNoTransforms } from './validators.js'
 
-// RULE: <title> must exist and be the first child
-export function ruleTitle({ svgElement, document, airlineName, issues }) {
+// RULE: <title> must exist, be the first child and match the airline name
+export function ruleTitle({
+    svgElement,
+    document,
+    airlineName,
+    isCatalogName,
+    issues,
+}) {
     let titleElement = svgElement.querySelector('title')
     if (!titleElement) {
         issues.push('Accessibility: Missing <title> element.')
@@ -13,6 +19,13 @@ export function ruleTitle({ svgElement, document, airlineName, issues }) {
             'Accessibility: <title> must be the first element inside <svg>.',
         )
         svgElement.prepend(titleElement)
+    }
+
+    if (isCatalogName && titleElement.textContent !== airlineName) {
+        issues.push(
+            `Accessibility: <title> should be "${airlineName}", not "${titleElement.textContent}".`,
+        )
+        titleElement.textContent = airlineName
     }
 }
 

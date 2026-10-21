@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync, writeFileSync } from 'fs'
 import { basename, dirname, join } from 'path'
 import { JSDOM } from 'jsdom'
+import { toSlug } from '../utils/index.js'
 
 import {
     ruleTitle,
@@ -44,8 +45,19 @@ const DOM_RULES = [
 // Each rule: (svgString, ctx) => { content, changed, message? }
 const STRING_RULES = [rulePathAttrOrder, ruleSvgAttrOrder]
 
+// Airline names from the catalog, keyed by asset folder (slug)
+const catalogNames = new Map(
+    JSON.parse(readFileSync('airlines.json', 'utf8')).map((a) => [
+        toSlug(a.name),
+        a.name,
+    ]),
+)
+
+// Folder names only approximate the airline name (e.g. "jet2com" for "Jet2.com"),
+// so prefer the catalog and fall back to the folder for airlines not added yet
 const getAirlineName = (filePath) => {
     const dirName = basename(dirname(filePath))
+    if (catalogNames.has(dirName)) return catalogNames.get(dirName)
 
     return dirName
         .split('-')
@@ -76,6 +88,7 @@ const lintSvgFile = (filePath) => {
         document,
         isIcon,
         airlineName: getAirlineName(filePath),
+        isCatalogName: catalogNames.has(basename(dirname(filePath))),
         issues: [],
     }
 
