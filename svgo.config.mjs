@@ -47,8 +47,8 @@ const removeEditorMetadata = {
 }
 
 
-const bbox = {
-    name: 'bbox',
+const measureBBox = {
+    name: 'measureBBox',
     fn: () => {
         return {
             element: {
@@ -73,12 +73,38 @@ const bbox = {
     },
 };
 
+// const measureBbox = {
+//     name: 'bbox',
+//     fn: () => {
+//         return {
+//             element: {
+//             enter: (node, parent) => {
+//                 console.log(node.name, node.attributes);
+//                 if (node.name == "svg") {
+//                     node.attributes.viewBox = `0 0 ${targetSize} ${targetSize}`;
+//                     delete node.attributes.width;
+//                     delete node.attributes.height;
+                    
+//                     originalX = parseFloat(viewBox[0])
+//                     originalY = parseFloat(viewBox[1])
+//                     originalWidth = parseFloat(viewBox[2])
+//                     originalHeight = parseFloat(viewBox[3])
+//                     node.attributes.viewBox = `0 0 ${targetSize} ${targetSize}`
+//                     delete node.attributes.width;
+//                     delete node.attributes.height;
+//                 }
+//             },
+//             },
+//         };
+//     },
+// };
+
 export default {
     multipass: true,
     floatPrecision: 5,
     plugins: [
         removeEditorMetadata,
-        bbox,
+        measureBBox,
         {
             name: 'preset-default',
             params: {
