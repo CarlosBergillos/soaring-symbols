@@ -10,6 +10,8 @@
 const EDITOR_NS = /inkscape\.org|sodipodi\.sourceforge\.net/
 const EDITOR_PREFIX = /^(ns\d+|sodipodi|inkscape)$/
 
+const targetSize = 24;
+
 const removeEditorMetadata = {
     name: 'removeEditorMetadata',
     fn: () => ({
@@ -44,11 +46,39 @@ const removeEditorMetadata = {
     }),
 }
 
+
+const bbox = {
+    name: 'bbox',
+    fn: () => {
+        return {
+            element: {
+            enter: (node, parent) => {
+                console.log(node.name, node.attributes);
+                if (node.name == "svg") {
+                    node.attributes.viewBox = `0 0 ${targetSize} ${targetSize}`;
+                    delete node.attributes.width;
+                    delete node.attributes.height;
+                    
+                    originalX = parseFloat(viewBox[0])
+                    originalY = parseFloat(viewBox[1])
+                    originalWidth = parseFloat(viewBox[2])
+                    originalHeight = parseFloat(viewBox[3])
+                    node.attributes.viewBox = `0 0 ${targetSize} ${targetSize}`
+                    delete node.attributes.width;
+                    delete node.attributes.height;
+                }
+            },
+            },
+        };
+    },
+};
+
 export default {
     multipass: true,
     floatPrecision: 5,
     plugins: [
         removeEditorMetadata,
+        bbox,
         {
             name: 'preset-default',
             params: {
