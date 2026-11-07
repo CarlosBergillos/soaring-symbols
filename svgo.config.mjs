@@ -10,7 +10,17 @@
 const EDITOR_NS = /inkscape\.org|sodipodi\.sourceforge\.net/
 const EDITOR_PREFIX = /^(ns\d+|sodipodi|inkscape)$/
 
-const targetSize = 24;
+// import { parseArgs } from 'util'
+// const { values, positionals } = parseArgs({
+//     allowPositionals: true,
+//     options: {
+//         type: { type: 'string', default: 'logo' }, // logo | icon
+//     },
+// })
+
+// console.log('values', values)
+// console.log('positionals', positionals)
+console.log(process.argv)
 
 const removeEditorMetadata = {
     name: 'removeEditorMetadata',
@@ -46,32 +56,31 @@ const removeEditorMetadata = {
     }),
 }
 
-
 const measureBBox = {
     name: 'measureBBox',
     fn: () => {
         return {
             element: {
-            enter: (node, parent) => {
-                console.log(node.name, node.attributes);
-                if (node.name == "svg") {
-                    node.attributes.viewBox = `0 0 ${targetSize} ${targetSize}`;
-                    delete node.attributes.width;
-                    delete node.attributes.height;
-                    
-                    originalX = parseFloat(viewBox[0])
-                    originalY = parseFloat(viewBox[1])
-                    originalWidth = parseFloat(viewBox[2])
-                    originalHeight = parseFloat(viewBox[3])
-                    node.attributes.viewBox = `0 0 ${targetSize} ${targetSize}`
-                    delete node.attributes.width;
-                    delete node.attributes.height;
-                }
+                enter: (node, parent) => {
+                    console.log(node.name, node.attributes)
+                    if (node.name == 'svg') {
+                        node.attributes.viewBox = `0 0 ${targetSize} ${targetSize}`
+                        delete node.attributes.width
+                        delete node.attributes.height
+
+                        originalX = parseFloat(viewBox[0])
+                        originalY = parseFloat(viewBox[1])
+                        originalWidth = parseFloat(viewBox[2])
+                        originalHeight = parseFloat(viewBox[3])
+                        node.attributes.viewBox = `0 0 ${targetSize} ${targetSize}`
+                        delete node.attributes.width
+                        delete node.attributes.height
+                    }
+                },
             },
-            },
-        };
+        }
     },
-};
+}
 
 // const measureBbox = {
 //     name: 'bbox',
@@ -84,7 +93,7 @@ const measureBBox = {
 //                     node.attributes.viewBox = `0 0 ${targetSize} ${targetSize}`;
 //                     delete node.attributes.width;
 //                     delete node.attributes.height;
-                    
+
 //                     originalX = parseFloat(viewBox[0])
 //                     originalY = parseFloat(viewBox[1])
 //                     originalWidth = parseFloat(viewBox[2])
@@ -104,7 +113,7 @@ export default {
     floatPrecision: 5,
     plugins: [
         removeEditorMetadata,
-        measureBBox,
+        // measureBBox,
         {
             name: 'preset-default',
             params: {

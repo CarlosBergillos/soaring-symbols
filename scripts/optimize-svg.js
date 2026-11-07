@@ -1,79 +1,93 @@
 import { Resvg } from '@resvg/resvg-js'
 import { optimize, loadConfig } from 'svgo'
 import { readFileSync, writeFileSync } from 'fs'
+import { parseArgs } from 'util'
 
-const fileIn = 'assets/wip/level/original2.svg'
-const fileOut = 'assets/wip/level/logo.svg'
+const normalizeGeometry = {
+    name: 'normalizeGeometry',
+    fn: (root, params, info) => {
+        const shapeNodes = new Set(['path', 'rect', 'polygon'])
+        const bbox = params.originalBBox
 
-const targetSize = 64
+        const scale = targetSize / Math.max(bbox.width, bbox.height)
+        const translateX = -bbox.x + Math.max(0, bbox.height - bbox.width) / 2
+        const translateY = -bbox.y + Math.max(0, bbox.width - bbox.height) / 2
 
-let firstPass = true
-const bboxPlugin = (bbox) => {
-    const scale = targetSize / Math.max(bbox.width, bbox.height)
-
-    const transformNode = (node) => {
-        node.attributes.transform = node.attributes.transform ?? ''
-
-        if (bbox.width != targetSize || bbox.height != targetSize) {
-            node.attributes.transform += ` scale(${scale})`
-        }
-
-        if (bbox.x != 0 || bbox.y != 0) {
-            const translateX = -bbox.x
-            const translateY = -bbox.y
-            node.attributes.transform += ` translate(${translateX} ${translateY})`
-        }
-
-        if (bbox.width > bbox.height) {
-            const translateY = bbox.width / 2 - bbox.height / 2
-            node.attributes.transform += ` translate(0, ${translateY})`
-        }
-    }
-
-    return {
-        name: 'bbox',
-        fn: () => {
-            return {
-                element: {
-                    enter: (node, parent) => {
-                        if (!firstPass) {
-                            return
-                        }
-                        if (node.name == 'svg') {
-                            node.attributes.viewBox = `0 0 ${targetSize} ${targetSize}`
-                            delete node.attributes.width
-                            delete node.attributes.height
-                        }
-                        if (
-                            (node.name == 'path') |
-                            (node.name == 'rect') |
-                            (node.name == 'polygon')
-                        ) {
-                            transformNode(node)
-                        }
-                    },
-                },
-                root: {
-                    exit: (node) => {
-                        firstPass = false
-                    },
-                },
+        const transformNode = (node) => {
+            node.attributes.transform = node.attributes.transform ?? ''
+            if (scale !== 1) {
+                node.attributes.transform += ` scale(${scale})`
             }
-        },
-    }
+            if (translateX !== 0 || translateY !== 0) {
+                node.attributes.transform += ` translate(${translateX} ${translateY})`
+            }
+        }
+
+        return {
+            element: {
+                enter: (node) => {
+                    if (info.multipassCount !== 0) {
+                        return
+                    }
+                    if (node.name == 'svg') {
+                        node.attributes.viewBox = `0 0 ${targetSize} ${targetSize}`
+                        delete node.attributes.width
+                        delete node.attributes.height
+                    }
+                    if (shapeNodes.has(node.name)) {
+                        transformNode(node)
+                    }
+                },
+            },
+        }
+    },
 }
 
-const optimizeSvgFile = (filePath) => {
+const optimizeSvgFile = async (filePath, targetSize) => {
     const originalSvg = readFileSync(filePath, 'utf8')
-    const bbox = new Resvg(originalSvg).getBBox()
+    const config = (await loadConfig()) ?? {}
+    const plugins = config.plugins ?? []
 
-    const { data: optimizedSvg } = optimize(originalSvg, {
-        floatPrecision: 5,
-        multipass: true,
-        plugins: ['preset-default', bboxPlugin(bbox)],
+    if (targetSize !== null) {
+        const bbox = new Resvg(originalSvg).getBBox()
+        plugins.push({
+            ...normalizeGeometry,
+            params: {
+                originalBBox: bbox,
+                targetSize: targetSize,
+            },
+        })
+    }
+
+    const { data } = optimize(originalSvg, {
+        ...config,
+        plugins,
     })
 
-    writeFileSync(fileOut, optimizedSvg)
+    return data
 }
 
-optimizeSvgFile(fileIn)
+const { values, positionals } = parseArgs({
+    allowPositionals: true,
+    options: {
+        'normalize-geometry': { type: 'string', default: '' }, // 'icon' | 'logo' | ''
+    },
+})
+
+if (!positionals[0]) {
+    console.error('Missing input file argument')
+    process.exit(1)
+}
+
+const fileIn = positionals[0]
+const fileOut = fileIn.replace(/\.svg$/, '.optimized.svg')
+const targetSize =
+    {
+        logo: 64,
+        icon: 24,
+    }[values['normalize-geometry']] ?? null
+
+const optimizedSvg = await optimizeSvgFile(fileIn, targetSize)
+writeFileSync(fileOut, optimizedSvg)
+
+console.log(`Optimized SVG written to ${fileOut}`)
